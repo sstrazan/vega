@@ -5,7 +5,7 @@ using Microsoft.EntityFrameworkCore.Metadata;
 
 namespace Vega.Migrations
 {
-    public partial class AddVehicle : Migration
+    public partial class AddVehicles : Migration
     {
         protected override void Up(MigrationBuilder migrationBuilder)
         {
@@ -20,8 +20,7 @@ namespace Vega.Migrations
                     ContactPhone = table.Column<string>(maxLength: 255, nullable: false),
                     IsRegistered = table.Column<bool>(nullable: false),
                     LastUpdate = table.Column<DateTime>(nullable: false),
-                    MakeId = table.Column<int>(nullable: false),
-                    ModelId = table.Column<int>(nullable: true)
+                    ModelId = table.Column<int>(nullable: false)
                 },
                 constraints: table =>
                 {
@@ -31,7 +30,7 @@ namespace Vega.Migrations
                         column: x => x.ModelId,
                         principalTable: "Models",
                         principalColumn: "Id",
-                        onDelete: ReferentialAction.Restrict);
+                        onDelete: ReferentialAction.Cascade);
                 });
 
             migrationBuilder.CreateTable(

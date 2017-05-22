@@ -12,6 +12,8 @@ namespace Vega.Persistence
 
         public DbSet<Make> Makes {get; set;} // It is not necessary to add Model class to DbSet because Make class has reference to Collection of Model class so EF will recognise Model class as part of domain model
         public DbSet<Feature> Features {get; set;}
+        public DbSet<Vehicle> Vehicles {get; set;}
+        public DbSet<Model> Models {get; set;}
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {

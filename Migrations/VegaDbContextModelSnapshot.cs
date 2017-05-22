@@ -82,9 +82,7 @@ namespace Vega.Migrations
 
                     b.Property<DateTime>("LastUpdate");
 
-                    b.Property<int>("MakeId");
-
-                    b.Property<int?>("ModelId");
+                    b.Property<int>("ModelId");
 
                     b.HasKey("Id");
 
@@ -118,7 +116,8 @@ namespace Vega.Migrations
                 {
                     b.HasOne("Vega.Models.Model", "Model")
                         .WithMany()
-                        .HasForeignKey("ModelId");
+                        .HasForeignKey("ModelId")
+                        .OnDelete(DeleteBehavior.Cascade);
                 });
 
             modelBuilder.Entity("Vega.Models.VehicleFeature", b =>
