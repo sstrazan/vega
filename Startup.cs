@@ -37,7 +37,9 @@ namespace WebApplicationBasic
             services.AddDbContext<VegaDbContext>(options => options.UseSqlServer(Configuration.GetConnectionString("Default")));
             // moze i ovako
             // services.AddDbContext<VegaDbContext>(options => options.UseSqlServer(Configuration["ConnectionStrings:Default"]));
-            
+
+            services.AddScoped<IVehicleRepository, VehicleRepository>();
+
             // Add framework services.
             services.AddMvc();
         }

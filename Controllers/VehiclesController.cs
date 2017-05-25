@@ -15,8 +15,10 @@ namespace Vega.Controllers
     {
         private readonly IMapper _mapper;
         private readonly VegaDbContext _dbContext;
-        public VehiclesController(IMapper mapper, VegaDbContext dbContext)
+        private readonly IVehicleRepository _vehicleRepository;
+        public VehiclesController(IMapper mapper, VegaDbContext dbContext, IVehicleRepository vehicleRepository)
         {
+            this._vehicleRepository = vehicleRepository;
             this._dbContext = dbContext;
             this._mapper = mapper;
         }
@@ -33,14 +35,17 @@ namespace Vega.Controllers
                 ModelState.AddModelError("ModelId", "Invalid model id");
                 return BadRequest(ModelState);
             }
-            
+
             var vehicle = _mapper.Map<SaveVehicleResource, Vehicle>(vehicleResource);
+
             vehicle.LastUpdate = DateTime.UtcNow;
 
             _dbContext.Vehicles.Add(vehicle);
             await _dbContext.SaveChangesAsync();
 
-            var result = _mapper.Map<Vehicle, SaveVehicleResource>(vehicle);
+            vehicle = await _vehicleRepository.GetVehicle(vehicle.Id);
+
+            var result = _mapper.Map<Vehicle, VehicleResource>(vehicle);
             return Ok(result);
         }
 
@@ -56,8 +61,8 @@ namespace Vega.Controllers
                 ModelState.AddModelError("ModelId", "Invalid model id");
                 return BadRequest(ModelState);
             }
-            
-            var vehicle = await _dbContext.Vehicles.Include(v => v.Features).SingleOrDefaultAsync(v => v.Id == id);
+
+            var vehicle = await _vehicleRepository.GetVehicle(id);
 
             if (vehicle == null)
                 return NotFound();
@@ -68,7 +73,7 @@ namespace Vega.Controllers
 
             await _dbContext.SaveChangesAsync();
 
-            var result = _mapper.Map<Vehicle, SaveVehicleResource>(vehicle);
+            var result = _mapper.Map<Vehicle, VehicleResource>(vehicle);
 
             return Ok(result);
         }
@@ -77,12 +82,12 @@ namespace Vega.Controllers
         public async Task<IActionResult> DeleteVehicle(int id)
         {
             var vehicle = await _dbContext.Vehicles.FindAsync(id);
-            
+
             if (vehicle == null)
                 return NotFound();
-            
+
             _dbContext.Vehicles.Remove(vehicle);
-            
+
             await _dbContext.SaveChangesAsync();
 
             return Ok(id);
@@ -91,20 +96,15 @@ namespace Vega.Controllers
         [HttpGet("{id}")]
         public async Task<IActionResult> GetVehicle(int id)
         {
-            var vehicle = await _dbContext.Vehicles
-                .Include(v => v.Features)
-                    .ThenInclude(vf => vf.Feature)
-                .Include(v => v.Model)
-                    .ThenInclude(m => m.Make)
-                .SingleOrDefaultAsync(v => v.Id == id);
+            var vehicle = await _vehicleRepository.GetVehicle(id);
 
             if (vehicle == null)
                 return NotFound();
-            
+
             var result = _mapper.Map<Vehicle, VehicleResource>(vehicle);
 
             return Ok(result);
         }
-        
+
     }
 }
